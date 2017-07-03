@@ -12,7 +12,7 @@ using namespace Gdiplus;
 #include <assert.h>
 
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
-void Draw(Graphics* g);
+void Draw(Graphics* g, BOOL background = TRUE);
 
 int main(void)
 {
@@ -20,19 +20,33 @@ int main(void)
 	ULONG_PTR           gdiplusToken;
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	Bitmap* bitmap = new Bitmap(1000, 1000, PixelFormat32bppARGB);
-	Graphics* g = Graphics::FromImage(bitmap);
-	
-	Draw(g);
-
 	CLSID pngClsid;
-	
-	GetEncoderClsid(L"image/png", &pngClsid);
-	
-	bitmap->Save(L"Image.png", &pngClsid, NULL);
 
-	delete g;
-	delete bitmap;
+	GetEncoderClsid(L"image/png", &pngClsid);
+
+	{
+		Bitmap* bitmap = new Bitmap(1000, 1000, PixelFormat32bppARGB);
+		Graphics* g = Graphics::FromImage(bitmap);
+
+		Draw(g);
+
+		bitmap->Save(L"ImageF.png", &pngClsid, NULL);
+
+		delete g;
+		delete bitmap;
+	}
+	
+	{
+		Bitmap* bitmap = new Bitmap(1000, 1000, PixelFormat32bppARGB);
+		Graphics* g = Graphics::FromImage(bitmap);
+
+		Draw(g, FALSE);
+
+		bitmap->Save(L"ImageCO.png", &pngClsid, NULL);
+
+		delete g;
+		delete bitmap;
+	}
 
     return 0;
 }
@@ -68,12 +82,35 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	return -1;
 }
 
-void Draw(Graphics* g)
+void Draw(Graphics* g, BOOL background)
 {
-	{// background
-		SolidBrush* background = new SolidBrush(Color(0xff, 0x6, 0x17, 0x68));
-		g->FillRectangle(background, 0, 0, 1000, 1000);
-		delete background;
+	if(background){// background
+		LinearGradientBrush* bk = new LinearGradientBrush(Rect(0, 0, 1000, 1000), Color(0xff, 0xff, 0xc7, 0xe8), Color(0xff, 0xd0, 0x67, 0xd8), 45, 1);
+		g->FillRectangle(bk, 0, 0, 1000, 1000);
+		delete bk;
+
+		//rainbow
+		Pen* violet = new Pen(Color(0xff, 0x94, 0x00, 0xd3), 50);
+		Pen* indigo = new Pen(Color(0xff, 0x4b, 0x00, 0x82), 50);
+		Pen* blue = new Pen(Color(0xff, 0x00, 0x00, 0xff), 50);
+		Pen* green = new Pen(Color(0xff, 0x00, 0xff, 0x00), 50);
+		Pen* yellow = new Pen(Color(0xff, 0xff, 0xff, 0x00), 50);
+		Pen* orange = new Pen(Color(0xff, 0xff, 0x7f, 0x00), 50);
+		Pen* red = new Pen(Color(0xff, 0xff, 0x00, 0x00), 50);
+		g->DrawArc(violet, 0, 0, 2000, 2000, 90, 180);
+		g->DrawArc(indigo, 36, 36, 2000, 2000, 90, 180);
+		g->DrawArc(blue, 72, 72, 2000, 2000, 90, 180);
+		g->DrawArc(green, 108, 108, 2000, 2000, 90, 180);
+		g->DrawArc(yellow, 144, 144, 2000, 2000, 90, 180);
+		g->DrawArc(orange, 180, 180, 2000, 2000, 90, 180);
+		g->DrawArc(red, 216, 216, 2000, 2000, 90, 180);
+		delete violet;
+		delete indigo;
+		delete blue;
+		delete green;
+		delete yellow;
+		delete orange;
+		delete red;
 	}
 
 	{// body
@@ -126,7 +163,6 @@ void Draw(Graphics* g)
 			g->FillEllipse(cheek, 250 + i, 500 + i, 100 - i * 2, 100 - i * 2);
 			g->FillEllipse(cheek, 650 + i, 500 + i, 100 - i * 2, 100 - i * 2);
 			delete cheek;
-	
 		}
 	}
 }
